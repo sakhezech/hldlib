@@ -4,7 +4,6 @@ import re
 from hldlib.hldobjects import HLDObj, _int_float_str_convert
 from hldlib.hlddirections import HLDDirection
 from hldlib.hlderror import HLDError
-from typing import Self
 
 
 class HLDLevel:
@@ -21,7 +20,7 @@ class HLDLevel:
         self.direction = direction
     
     @classmethod
-    def load(cls, path: str | Path, direction: HLDDirection | None = None) -> Self:
+    def load(cls, path: str | Path, direction: HLDDirection | None = None):
         """
         Loads a level from path. If the direction is not set, uses the directory name as direction.
         """
@@ -32,7 +31,7 @@ class HLDLevel:
             return cls.from_string(f.read(), name, direction)
 
     @classmethod    
-    def from_string(cls, string: str, name: str, direction: HLDDirection) -> Self:
+    def from_string(cls, string: str, name: str, direction: HLDDirection):
         """
         Loads a level from a string.
         """
@@ -81,7 +80,7 @@ class HLDLevel:
                 "".join([obj.to_string() for obj in self.objects])
     
 
-    def __eq__(self, other: Self) -> bool:
+    def __eq__(self, other) -> bool:
         if other.__class__ is not self.__class__: return False
         return self.__dict__ == other.__dict__
 

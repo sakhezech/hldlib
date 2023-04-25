@@ -1,5 +1,4 @@
 import re
-from typing import Self
 from hldlib.hlderror import HLDError
 from hldlib.hldtype import HLDType
 
@@ -18,7 +17,7 @@ class HLDObj:
         self.layer = layer
     
     @classmethod
-    def from_string(cls, line: str) -> Self:
+    def from_string(cls, line: str):
         """
         Creates an HLD object from a string as they are formated in level files.
 
@@ -42,7 +41,7 @@ class HLDObj:
         attrs_to_str = ",".join([f"{key}={value}" for key, value in self.attrs.items()])
         return f"\n\t //obj,{self.type},{self.uid},{self.x},{self.y},{self.layer},{self.dependencies},++,{attrs_to_str},"
     
-    def __eq__(self, other: Self) -> bool:
+    def __eq__(self, other) -> bool:
         if other.__class__ is not self.__class__: return False
         return self.__dict__ == other.__dict__
 

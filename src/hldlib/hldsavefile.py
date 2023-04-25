@@ -2,7 +2,7 @@ import base64
 import json
 from dataclasses import dataclass, fields
 from pathlib import Path
-from typing import Any, Self
+from typing import Any
 
 
 def trailing_join(iter: list[str], join_string: str, trail_if_len_gt: int = 0) -> str:
@@ -26,7 +26,7 @@ class sfdict(dict[str, list[str]]):
     """
 
     @classmethod
-    def from_string(cls, string: str) -> Self:
+    def from_string(cls, string: str):
         to_return = {}
         pairs = string.split(">")
         for pair in pairs[:-1]:
@@ -119,7 +119,7 @@ class HLDSaveFile:
         return type_map[strtype](value)
 
     @classmethod
-    def load(cls, path: str | Path) -> Self:
+    def load(cls, path: str | Path):
         """
         Loads a savefile from path.
         """
@@ -128,7 +128,7 @@ class HLDSaveFile:
             return cls.from_string(text)
 
     @classmethod
-    def from_string(cls, string: str) -> Self:
+    def from_string(cls, string: str):
         """
         Creates a savefile from an encoded string.
         """
