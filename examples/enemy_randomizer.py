@@ -1,6 +1,7 @@
 from hldlib import default_load, find_path, HLDType
 import random
 
+
 def main():
 
     list_of_enemies = [

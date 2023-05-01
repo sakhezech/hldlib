@@ -18,7 +18,7 @@ class HLDLevel:
         self.room_settings = room_settings
         self.objects = objects
         self.direction = direction
-    
+
     @classmethod
     def load(cls, path: str | Path, direction: HLDDirection | None = None):
         """
@@ -30,7 +30,7 @@ class HLDLevel:
         with open(path, "r") as f:
             return cls.from_string(f.read(), name, direction)
 
-    @classmethod    
+    @classmethod
     def from_string(cls, string: str, name: str, direction: HLDDirection):
         """
         Loads a level from a string.
@@ -41,14 +41,19 @@ class HLDLevel:
         objects = []
         i = 0
 
-        while not (match := re.match(r"(?:DATE|VERSION),(?P<date>.*?),", lines[i])): i += 1
-        date = float(match.group("date")); i += 1
-        while not (match := re.search(r"layerName,(?P<id>.*?),(?P<name>.*?),", lines[i])): i += 1
+        while not (match := re.match(r"(?:DATE|VERSION),(?P<date>.*?),", lines[i])):
+            i += 1
+        date = float(match.group("date"))
+        i += 1
+        while not (match := re.search(r"layerName,(?P<id>.*?),(?P<name>.*?),", lines[i])):
+            i += 1
         while (match := re.search(r"layerName,(?P<id>.*?),(?P<name>.*?),", lines[i])):
             layer_names[int(match.group("id"))] = match.group("name")
             i += 1
-        while not (match := re.search(r",floorSpr,", lines[i])): i += 1
-        split_line = list(map(_int_float_str_convert, lines[i].lstrip().split(",")[:-1]))
+        while not (match := re.search(r",floorSpr,", lines[i])):
+            i += 1
+        split_line = list(map(_int_float_str_convert,
+                          lines[i].lstrip().split(",")[:-1]))
         sketch = split_line[-4:]
         rest_of_settings = iter(split_line[:-4])
         for x in rest_of_settings:
@@ -56,10 +61,10 @@ class HLDLevel:
         room_settings[sketch[0]] = [sketch[1], sketch[2], sketch[3]]
         i += 1
         for line in lines[i:]:
-            if re.search(r"obj,.*?,.*?,", line): objects.append(HLDObj.from_string(line))
-        
+            if re.search(r"obj,.*?,.*?,", line):
+                objects.append(HLDObj.from_string(line))
+
         return cls(date=date, layer_names=layer_names, room_settings=room_settings, objects=objects, name=name, direction=direction)
-    
 
     def dump(self, path: str | Path) -> None:
         """
@@ -68,20 +73,20 @@ class HLDLevel:
         os.makedirs(path, exist_ok=True)
         with open(os.path.join(path, self.name), "w") as file:
             file.write(self.to_string())
-    
+
     def to_string(self) -> str:
         """
         Gets the level in a string form. Can be used to write to a file.
         """
         return f"DATE,{self.date}," +\
-                "\n\t " + "\n\t ".join([f"layerName,{key},{value}," for key, value in self.layer_names.items()]) +\
-                "\n\t " + ",".join([f"{key},{value}" for key, value in self.room_settings.items() if key != "sketchalpha"]) +\
-                    f",sketchalpha,{','.join(list(map(str, self.room_settings['sketchalpha'])))}," +\
-                "".join([obj.to_string() for obj in self.objects])
-    
+            "\n\t " + "\n\t ".join([f"layerName,{key},{value}," for key, value in self.layer_names.items()]) +\
+            "\n\t " + ",".join([f"{key},{value}" for key, value in self.room_settings.items() if key != "sketchalpha"]) +\
+            f",sketchalpha,{','.join(list(map(str, self.room_settings['sketchalpha'])))}," +\
+            "".join([obj.to_string() for obj in self.objects])
 
     def __eq__(self, other) -> bool:
-        if other.__class__ is not self.__class__: return False
+        if other.__class__ is not self.__class__:
+            return False
         return self.__dict__ == other.__dict__
 
 
@@ -89,6 +94,7 @@ class HLDHolder(list[HLDLevel]):
     """
     A convenient list for levels with the ability to dump all levels.
     """
+
     def dump_all(self, path: str) -> None:
         """
         Dumps all levels.
@@ -98,6 +104,7 @@ class HLDHolder(list[HLDLevel]):
         """
         for level in self:
             level.dump(os.path.join(path, level.direction))
+
 
 level_names_and_ids: list[tuple[str, int]] = [
     ("rm_IN_01_brokenshallows.lvl", 46),
@@ -288,18 +295,22 @@ level_names_and_ids: list[tuple[str, int]] = [
     ("rm_C_DrifterWorkshop.lvl", 276)
 ]
 
+
 def get_id_from_name(name: str) -> int:
     """
     A way to convert internal level ID to its name.
     """
     for namee, idd in level_names_and_ids:
-        if namee == name: return idd
+        if namee == name:
+            return idd
     raise HLDError(f"No such level named {name}.")
+
 
 def get_name_from_id(id_: int) -> str:
     """
     A way to convert level name to its internal ID.
     """
     for namee, idd in level_names_and_ids:
-        if idd == id_: return namee
+        if idd == id_:
+            return namee
     raise HLDError(f"No such level with id {id_}.")

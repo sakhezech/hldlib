@@ -1,1 +1,2 @@
-class HLDError(Exception): pass
+class HLDError(Exception):
+    pass

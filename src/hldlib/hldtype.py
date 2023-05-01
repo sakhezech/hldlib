@@ -1,9 +1,11 @@
 from enum import Enum
 
+
 class HLDType(str, Enum):
     """
     This enum contains all the possible object types in HLD. Collected from all levels and from data.win.
     """
+
     def __str__(self):
         return self.value
     MASTERCLASS = "MasterClass"

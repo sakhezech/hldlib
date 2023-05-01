@@ -6,19 +6,22 @@ from typing import Any
 
 
 def trailing_join(iter: list[str], join_string: str, trail_if_len_gt: int = 0) -> str:
-    
-    return join_string.join(iter)+ join_string * (len(iter) > trail_if_len_gt)
-    
+
+    return join_string.join(iter) + join_string * (len(iter) > trail_if_len_gt)
+
+
 class sflist(list[str]):
     """
     A pyhton list representation of a HLD list.
     """
-    
+
     @classmethod
     def from_string(cls, string: str):
         return cls(string.split("+")[:-1])
+
     def to_string(self) -> str:
         return trailing_join(self, "+")
+
 
 class sfdict(dict[str, list[str]]):
     """
@@ -33,11 +36,14 @@ class sfdict(dict[str, list[str]]):
             s_pair = pair.split("=")
             key = s_pair[0]
             value = s_pair[1].split("&")
-            if len(value) > 1: value = value[:-1]
+            if len(value) > 1:
+                value = value[:-1]
             to_return[key] = value
         return cls(**to_return)
+
     def to_string(self) -> str:
         return trailing_join([f"{key}={trailing_join(value, '&')}" for key, value in self.items() if value], ">")
+
 
 @dataclass
 class HLDSaveFile:
@@ -135,13 +141,16 @@ class HLDSaveFile:
         save_dict: dict = json.loads(
             base64.standard_b64decode(string[80:])[:-1]
         )
-    
-        if not "eq00" in save_dict: save_dict["eq00"] = 0.
-        if not "eq01" in save_dict: save_dict["eq01"] = 0.
+
+        if not "eq00" in save_dict:
+            save_dict["eq00"] = 0.
+        if not "eq01" in save_dict:
+            save_dict["eq01"] = 0.
         save_dict["header"] = string[:80]
 
         for field in fields(cls):
-            save_dict[field.name] = cls._auto_type(save_dict[field.name], field.type)  
+            save_dict[field.name] = cls._auto_type(
+                save_dict[field.name], field.type)
         return cls(**save_dict)
 
     def dump(self, path: str | Path) -> None:
@@ -150,15 +159,16 @@ class HLDSaveFile:
         """
         with open(path, "w") as out:
             out.write(self.to_string())
-    
+
     def to_string(self) -> str:
         """
         Gets the encoded string from the savefile.
         """
         jsoned, header = self.to_json_string(indent=0)
-        encoded_body = header + str(base64.standard_b64encode(bytes(jsoned + "\x00", "utf8")) , "utf-8")
+        encoded_body = header + \
+            str(base64.standard_b64encode(bytes(jsoned + "\x00", "utf8")), "utf-8")
         return encoded_body
-    
+
     def to_json_string(self, indent: int = 0) -> tuple[str, str]:
         """
         An inbetween step for to_string(). Can be used for debugging.
@@ -166,9 +176,12 @@ class HLDSaveFile:
         save_dict = self.__dict__.copy()
         header = save_dict.pop("header")
         for key, value in save_dict.items():
-            if isinstance(value, (sfdict, sflist)): save_dict[key] = value.to_string()
-        if save_dict["eq00"] == 0.: save_dict.pop("eq00")
-        if save_dict["eq01"] == 0.: save_dict.pop("eq01")
+            if isinstance(value, (sfdict, sflist)):
+                save_dict[key] = value.to_string()
+        if save_dict["eq00"] == 0.:
+            save_dict.pop("eq00")
+        if save_dict["eq01"] == 0.:
+            save_dict.pop("eq01")
         return (json.dumps(save_dict, indent=indent), header)
 
     def debug_dump(self, path: str | Path) -> None:

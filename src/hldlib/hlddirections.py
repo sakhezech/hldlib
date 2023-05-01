@@ -1,9 +1,11 @@
 from enum import Enum
 
+
 class HLDDirection(str, Enum):
     """
     Enum with all* HLD directions.
     """
+
     def __str__(self):
         return self.value
     NORTH = "North"
