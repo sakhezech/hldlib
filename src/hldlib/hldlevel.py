@@ -106,7 +106,7 @@ class HLDHolder(list[HLDLevel]):
             level.dump(os.path.join(path, level.direction))
 
 
-level_names_and_ids: list[tuple[str, int]] = [
+level_names_and_ids: set[tuple[str, int]] = {
     ("rm_IN_01_brokenshallows.lvl", 46),
     ("rm_IN_02_Tutorial.lvl", 47),
     ("rm_IN_03_Tut_Combat.lvl", 48),
@@ -293,7 +293,7 @@ level_names_and_ids: list[tuple[str, int]] = [
     ("rm_BossRush_BennyArrow.lvl", 272),
     ("rm_BossRush_Ember.lvl", 273),
     ("rm_C_DrifterWorkshop.lvl", 276)
-]
+}
 
 
 def get_id_from_name(name: str) -> int:
