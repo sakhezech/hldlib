@@ -1,5 +1,5 @@
 from pathlib import Path
-from hldlib.hldlevel import HLDLevel, HLDHolder
+from hldlib.hldlevel import HLDLevel, HLDLevelList
 from hldlib.hlderror import HLDError
 from hldlib.hlddirections import HLDDirection
 from typing import Iterable
@@ -25,13 +25,13 @@ def get_levels(path: str | Path, dirs: Iterable[str]):
             yield filepath, directory, level
 
 
-def default_load(path: str | Path) -> HLDHolder:
+def default_load(path: str | Path) -> HLDLevelList:
     """
     Default load method for loading levels from the basic HLD .lvl file structure.
 
     Gets all levels from path/North, path/East, path/..., path/Abyss
     """
-    loaded = HLDHolder()
+    loaded = HLDLevelList()
     for level_path, _, _ in get_levels(path, HLDDirection):
         lvl = HLDLevel.load(level_path)
         loaded.append(lvl)

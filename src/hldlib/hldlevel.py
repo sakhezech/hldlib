@@ -90,7 +90,7 @@ class HLDLevel:
         return self.__dict__ == other.__dict__
 
 
-class HLDHolder(list[HLDLevel]):
+class HLDLevelList(list[HLDLevel]):
     """
     A convenient list for levels with the ability to dump all levels.
     """
