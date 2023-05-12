@@ -4,7 +4,7 @@ A Python package for working with Hyper Light Drifter files.
 
 ## TODO list
 - way better documentation
-- make **dependencies** their own class; something like
+- ~~make **dependencies** their own class; something like~~ DONE
 ```py
 class Dependencies:
     depends_on: list[int]

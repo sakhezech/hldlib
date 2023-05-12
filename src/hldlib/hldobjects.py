@@ -1,6 +1,63 @@
 import re
 from hldlib.hlderror import HLDError
 from hldlib.hldtype import HLDType
+from typing import Literal
+from enum import Enum
+
+
+class CaseScriptType(Enum):
+    BOOMBOX = 0
+    ALL = 1
+    REGION = 2
+    FLAG = 3
+    ENEMY = 4
+    NO = 5
+
+
+class Dependencies:
+    def __init__(self, depends_on: list[int], caseScriptType: CaseScriptType, inverted: bool, actor: HLDType | Literal['-1','0','1','-999999'], delay: int):
+        self.depends_on = depends_on
+        self.caseScriptType = caseScriptType
+        self.inverted = inverted
+        self.actor = actor
+        self.delay = delay
+    
+    @classmethod
+    def from_string(cls, string: str):
+        before, after, *_ = string.split(',caseScript,') + ['']
+        depends_on = [int(num) for num in before.split(',')[1:]]
+        if not after:
+            caseScriptType = CaseScriptType.NO
+            inverted = False
+            actor = '-999999'
+            delay = 0
+        else:
+            caseScriptType, inverted, actor, delay = after.split(',')  # type: ignore
+            caseScriptType = CaseScriptType(int(caseScriptType))
+            # THERE IS ONLY ONE LEVEL WHERE A STRING IS USED ISTEAD OF AN INT; TODO: MAKE THIS PRETTIER
+            inverted = not bool(int(inverted)) if inverted != 'false' else True # 'false' IS int(0) SO not bool(int(0)) == True
+            actor = HLDType(actor) if actor not in {'-1', '0', '1', '-999999'} else actor  # type: HLDType | Literal['-1','0','1','-999999']
+            delay = int(delay)
+        return cls(
+            depends_on=depends_on,
+            caseScriptType=caseScriptType,
+            inverted=inverted,
+            actor=actor,
+            delay=delay
+        )
+
+    def to_string(self) -> str:
+        left_part = f'{len(self.depends_on)},{",".join([str(uid) for uid in self.depends_on])}' if len(self.depends_on) else '-999999'
+        if self.caseScriptType == CaseScriptType.NO:
+            return left_part
+        else:
+            right_part = f'{self.caseScriptType.value},{int(not self.inverted)},{self.actor},{self.delay}'
+            return f'{left_part},caseScript,{right_part}'
+
+    def __eq__(self, other) -> bool:
+        if other.__class__ is not self.__class__:
+            return False
+        return self.__dict__ == other.__dict__
 
 
 class HLDObj:
@@ -8,7 +65,7 @@ class HLDObj:
     A python representation of a HLD object.
     """
 
-    def __init__(self, type: HLDType, x: int, y: int, uid: int, attrs: dict, dependencies: str = "-999999", layer: int = 0) -> None:
+    def __init__(self, type: HLDType, x: int, y: int, uid: int, attrs: dict, dependencies: Dependencies, layer: int = 0) -> None:
         self.type = type
         self.x = x
         self.y = y
@@ -33,7 +90,7 @@ class HLDObj:
         x = int(regex_match.group("x"))
         y = int(regex_match.group("y"))
         layer = int(regex_match.group("layer"))
-        dependencies = regex_match.group("dependencies")
+        dependencies = Dependencies.from_string(regex_match.group("dependencies"))
         attrs = {pair.split("=")[0]: _int_float_str_convert(pair.split(
             "=")[1]) for pair in regex_match.group("attrs").split(",") if pair}
         return cls(type=HLDType(type), x=x, y=y, uid=uid, layer=layer, dependencies=dependencies, attrs=attrs)
@@ -44,7 +101,7 @@ class HLDObj:
         """
         attrs_to_str = ",".join(
             [f"{key}={value}" for key, value in self.attrs.items()])
-        return f"\n\t //obj,{self.type},{self.uid},{self.x},{self.y},{self.layer},{self.dependencies},++,{attrs_to_str},"
+        return f"\n\t //obj,{self.type},{self.uid},{self.x},{self.y},{self.layer},{self.dependencies.to_string()},++,{attrs_to_str},"
 
     def __eq__(self, other) -> bool:
         if other.__class__ is not self.__class__:
