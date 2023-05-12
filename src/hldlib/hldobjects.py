@@ -31,7 +31,7 @@ class HLDObj:
         y = int(regex_match.group("y"))
         layer = int(regex_match.group("layer"))
         dependencies = regex_match.group("dependencies")
-        attrs = {pair.split("=")[0]: _int_float_str_convert(pair.split("=")[1]) for pair in regex_match.group("attrs").split(",") if pair}
+        attrs = {pair.split("=")[0]: _int_float_str_convert(pair.split("=")[1]) for pair in regex_match.group("attrs").split(",") if "=" in pair}
         return cls(type=HLDType(type), x=x, y=y, uid=uid, layer=layer, dependencies=dependencies, attrs=attrs)
 
     def to_string(self) -> str:
