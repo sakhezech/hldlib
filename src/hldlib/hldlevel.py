@@ -298,7 +298,7 @@ level_names_and_ids: set[tuple[str, int]] = {
 
 def get_id_from_name(name: str) -> int:
     """
-    A way to convert internal level ID to its name.
+    A way to convert level name to its internal ID.
     """
     for namee, idd in level_names_and_ids:
         if namee == name:
@@ -308,7 +308,7 @@ def get_id_from_name(name: str) -> int:
 
 def get_name_from_id(id_: int) -> str:
     """
-    A way to convert level name to its internal ID.
+    A way to convert internal level ID to its name.
     """
     for namee, idd in level_names_and_ids:
         if idd == id_:
