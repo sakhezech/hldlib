@@ -169,25 +169,26 @@ class HLDSaveFile:
             str(base64.standard_b64encode(bytes(jsoned + "\x00", "utf8")), "utf-8")
         return encoded_body
 
-    def to_json_string(self, indent: int = 0) -> tuple[str, str]:
+    def to_json_string(self, indent: int = 0, convert_sf = True) -> tuple[str, str]:
         """
         An inbetween step for to_string(). Can be used for debugging.
         """
         save_dict = self.__dict__.copy()
         header = save_dict.pop("header")
-        for key, value in save_dict.items():
-            if isinstance(value, (sfdict, sflist)):
-                save_dict[key] = value.to_string()
+        if convert_sf:
+            for key, value in save_dict.items():
+                if isinstance(value, (sfdict, sflist)):
+                    save_dict[key] = value.to_string()
         if save_dict["eq00"] == 0.:
             save_dict.pop("eq00")
         if save_dict["eq01"] == 0.:
             save_dict.pop("eq01")
         return (json.dumps(save_dict, indent=indent), header)
 
-    def debug_dump(self, path: str | Path) -> None:
+    def debug_dump(self, path: str | Path, convert_sf = True) -> None:
         """
         Dumps an unencoded savefile to path.
         """
         with open(path, "w") as out:
-            jsoned, _ = self.to_json_string(indent=4)
+            jsoned, _ = self.to_json_string(4, convert_sf)
             out.write(jsoned)
