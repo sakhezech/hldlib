@@ -35,8 +35,8 @@ def main():
                     obj.attrs["-8"] = 0
 
     # And in the end we dump all the changed levels
-    # NOTE: dump_all dumps levels in directories named after their direction
-    # So dump_all(path) will dump all levels with direction HLDDirection.NORTH in path/North
+    # NOTE: default_dump dumps levels in directories named after their direction
+    # So it will dump all levels with direction HLDDirection.NORTH in path/North
     default_dump(levels, "out")
 
 
