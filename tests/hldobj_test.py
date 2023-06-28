@@ -1,14 +1,10 @@
 from hldlib import HLDObj, HLDType, HLDError, Dependencies, CaseScriptType
+from _fixtures import testing_obj_string
 import pytest
 
 
-@pytest.fixture
-def obj_string() -> str:
-    return "obj,Spawner,593,536,352,6,-999999,++,-1=dirk,-2=-999999,-4=1,-5=0,-6=-1,-7=0,-8=0,"
-
-
-def test_from_string(obj_string: str):
-    obj = HLDObj.from_string(obj_string)
+def test_from_string(testing_obj_string: str):
+    obj = HLDObj.from_string(testing_obj_string)
     assert obj.type == HLDType.SPAWNER
     assert obj.uid == 593
     assert obj.x == 536
@@ -44,6 +40,6 @@ def test_from_string_errors():
             "obj,Spawner,593,536,6,-999999,++,-1=dirk,-2=-999999,-4=1,-5=0,-6=-1,-7=0,-8=0,")
 
 
-def test_to_string(obj_string: str):
-    obj = HLDObj.from_string(obj_string)
-    assert obj_string == obj.to_string().strip().replace("//", "")
+def test_to_string(testing_obj_string: str):
+    obj = HLDObj.from_string(testing_obj_string)
+    assert testing_obj_string == obj.to_string().strip().replace("//", "")

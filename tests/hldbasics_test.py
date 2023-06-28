@@ -1,58 +1,9 @@
 from _pytest.tmpdir import tmp_path
-from hldlib import Counter, find_path, HLDError, default_load, HLDLevel, HLDObj, HLDDirection
+from hldlib import Counter, find_path, HLDError, default_load, HLDLevel
 from pathlib import Path
+from _fixtures import testing_level
 import pytest
 import sys
-
-
-@pytest.fixture
-def testing_level() -> HLDLevel:
-    return HLDLevel(
-        name="rm_A_Test.lvl",
-        date=50000.00,
-        layer_names={
-            0: "Door",
-            1: "Block",
-            2: "Veg",
-            3: "Obj",
-            4: "Wall"
-        },
-        room_settings={
-            "lb": 0,
-            "bg": "<undefined>",
-            "floorSpr": "bg_C_Floor_Dregs",
-            "bri": 1,
-            "liteOff": 0,
-            "over": "bg_C_Dregs_N_Overlay",
-            "overPit": 0,
-            "wallsTop": 1,
-            "shadows": 1,
-            "flrOutline": 1,
-            "flrOC": 16777215,
-            "flrOSpr": "<undefined>",
-            "wallO": 0,
-            "w": 1024,
-            "h": 1888,
-            "sketchalpha": [
-                0.5,
-                1,
-                0
-            ]
-        },
-        objects=[
-            HLDObj.from_string(
-                "obj,Spawner,5643,522,717,3,-999999,++,-1=Crate,-2=-999999,-4=1,-5=0,-6=-1,-7=0,-8=0,"),
-            HLDObj.from_string(
-                "obj,Spawner,2261,540,719,3,-999999,++,-1=CrateBig,-2=-999999,-4=1,-5=0,-6=-1,-7=0,-8=0,"),
-            HLDObj.from_string(
-                "obj,Spawner,4066,480,728,3,-999999,++,-1=Crate,-2=-999999,-4=1,-5=0,-6=-1,-7=0,-8=0,"),
-            HLDObj.from_string(
-                "obj,Spawner,7726,464,728,3,-999999,++,-1=Crate,-2=-999999,-4=1,-5=0,-6=-1,-7=0,-8=0,"),
-            HLDObj.from_string(
-                "obj,Spawner,1324,464,752,3,-999999,++,-1=MultiHitCrate,-2=-999999,-4=1,-5=0,-6=-1,-7=0,-8=0,"),
-        ],
-        direction=HLDDirection.ABYSS
-    )
 
 
 def test_counter():  # Why?
