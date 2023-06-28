@@ -20,13 +20,11 @@ class HLDLevel:
         self.direction = direction
 
     @classmethod
-    def load(cls, path: str | Path, direction: HLDDirection | None = None):
+    def load(cls, path: str | Path, direction: HLDDirection = HLDDirection.NONE):
         """
-        Loads a level from path. If the direction is not set, uses the directory name as direction.
+        Loads a level from path.
         """
         name = os.path.basename(path)
-        if not direction:
-            direction = HLDDirection(os.path.basename(os.path.dirname(path)))
         with open(path, "r") as f:
             return cls.from_string(f.read(), name, direction)
 
@@ -88,22 +86,6 @@ class HLDLevel:
         if other.__class__ is not self.__class__:
             return False
         return self.__dict__ == other.__dict__
-
-
-class HLDLevelList(list[HLDLevel]):
-    """
-    A convenient list for levels with the ability to dump all levels.
-    """
-
-    def dump_all(self, path: str) -> None:
-        """
-        Dumps all levels.
-
-        NOTE: uses level direction as the dump directory name.
-        So dump_all(path) will dump all levels with direction HLDDirection.NORTH in path/North
-        """
-        for level in self:
-            level.dump(os.path.join(path, level.direction))
 
 
 level_names_and_ids: set[tuple[str, int]] = {

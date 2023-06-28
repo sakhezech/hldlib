@@ -1,4 +1,4 @@
-from hldlib import default_load, find_path, HLDType
+from hldlib import default_load, default_dump, find_path, HLDType
 import random
 
 
@@ -37,7 +37,7 @@ def main():
     # And in the end we dump all the changed levels
     # NOTE: dump_all dumps levels in directories named after their direction
     # So dump_all(path) will dump all levels with direction HLDDirection.NORTH in path/North
-    levels.dump_all("out")
+    default_dump(levels, "out")
 
 
 if __name__ == "__main__":

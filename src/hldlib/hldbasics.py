@@ -1,9 +1,17 @@
-from pathlib import Path
-from hldlib.hldlevel import HLDLevel, HLDLevelList
+from hldlib.hldlevel import HLDLevel
 from hldlib.hlderror import HLDError
 from hldlib.hlddirections import HLDDirection
-from typing import Iterable
+from pathlib import Path
 import os
+import sys
+
+
+def get_levels_root_folder(path: Path) -> Path:
+    match sys.platform:
+        case "win32": return path
+        case "linux": return path / "assets"
+        case "darwin": return path / "HyperLightDrifter.app" / "Contents" / "Resources"
+        case _: raise HLDError(f"{sys.platform} is not a supported platform.")
 
 
 def find_path(textfile_name: str = "hlddir.txt", where_to_search: str | Path = ".") -> str:
@@ -18,24 +26,27 @@ def find_path(textfile_name: str = "hlddir.txt", where_to_search: str | Path = "
     raise HLDError(f"No {textfile_name} found.")
 
 
-def get_levels(path: str | Path, dirs: Iterable[str]):
-    for directory in dirs:
-        for level in [level for level in os.listdir(os.path.join(path, directory)) if level.endswith(".lvl")]:
-            filepath: str = os.path.join(path, directory, level)
-            yield filepath, directory, level
-
-
-def default_load(path: str | Path) -> HLDLevelList:
+def default_load(path: str | Path) -> list[HLDLevel]:
     """
     Default load method for loading levels from the basic HLD .lvl file structure.
 
     Gets all levels from path/North, path/East, path/..., path/Abyss
     """
-    loaded = HLDLevelList()
-    for level_path, _, _ in get_levels(path, HLDDirection):
-        lvl = HLDLevel.load(level_path)
-        loaded.append(lvl)
-    return loaded
+    path = Path(path)
+    path_to_levels = get_levels_root_folder(path)
+    if sys.platform == "win32":
+        folder_paths = [path_to_levels / dir_.capitalize() for dir_ in [HLDDirection.NORTH, HLDDirection.EAST, HLDDirection.WEST, HLDDirection.SOUTH, HLDDirection.CENTRAL, HLDDirection.INTRO, HLDDirection.ABYSS]]
+    else:
+        folder_paths = [path_to_levels / dir_ for dir_ in [HLDDirection.NORTH, HLDDirection.EAST, HLDDirection.WEST, HLDDirection.SOUTH, HLDDirection.CENTRAL, HLDDirection.INTRO, HLDDirection.ABYSS]]
+    levels = [HLDLevel.load(level.path, HLDDirection(Path(level.path).parent.name.lower())) for paths in [os.scandir(folder) for folder in folder_paths] for level in paths if level.path.endswith(".lvl")]
+    return levels
+
+
+def default_dump(levels: list[HLDLevel], path: str | Path) -> None:
+    path = Path(path)
+    for level in levels:
+        dump_to = path / level.direction.capitalize() if sys.platform == "win32" else path / level.direction
+        level.dump(dump_to)
 
 
 class Counter:
