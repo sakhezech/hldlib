@@ -1,5 +1,6 @@
-from hldlib import default_load, default_dump, find_path, HLDType
+from hldlib import default_load, default_dump, HLDType
 import random
+import os
 
 
 def main():
@@ -12,8 +13,7 @@ def main():
     ]
 
     # Here we load all levels from path/North, path/East, path/..., path/Abyss
-    # find_path will search for the hlddir.txt file and read the first line there
-    levels = default_load(find_path())
+    levels = default_load(os.path.expanduser('~/.local/share/Steam/steamapps/common/HyperLightDrifter'))
 
     for level in levels:
         for obj in level.objects:

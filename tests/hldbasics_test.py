@@ -1,5 +1,5 @@
 from _pytest.tmpdir import tmp_path
-from hldlib import Counter, find_path, HLDError, default_load, HLDLevel
+from hldlib import Counter, HLDError, default_load, HLDLevel
 from pathlib import Path
 from _fixtures import testing_level
 import pytest
@@ -11,16 +11,6 @@ def test_counter():  # Why?
     assert a.use() == 2
     assert a.use() == 3
     assert a.use() == 4
-
-
-def test_find_path(tmp_path: Path):
-    with pytest.raises(HLDError):
-        find_path("hlddir.txt", tmp_path)
-    sub = tmp_path / "sub"
-    sub.mkdir()
-    hlddir = sub / "hlddir.txt"
-    hlddir.write_text("C://...")
-    assert find_path("hlddir.txt", tmp_path) == "C://..."
 
 
 def test_default_load_win(tmp_path: Path, testing_level: HLDLevel):

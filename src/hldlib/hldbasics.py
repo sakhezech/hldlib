@@ -14,18 +14,6 @@ def get_levels_root_folder(path: Path) -> Path:
         case _: raise HLDError(f"{sys.platform} is not a supported platform.")
 
 
-def find_path(textfile_name: str = "hlddir.txt", where_to_search: str | Path = ".") -> str:
-    """
-    An easy way to retrive a stored path. Searches in the specified directory and all subdirectories.
-    """
-    for dir_path, _, file_names in os.walk(where_to_search):
-        for file_name in file_names:
-            if file_name.lower() == textfile_name:
-                with open(os.path.join(dir_path, file_name)) as hld_dir_file:
-                    return hld_dir_file.readline().rstrip()
-    raise HLDError(f"No {textfile_name} found.")
-
-
 def default_load(path: str | Path) -> list[HLDLevel]:
     """
     Default load method for loading levels from the basic HLD .lvl file structure.
