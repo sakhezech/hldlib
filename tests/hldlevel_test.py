@@ -89,8 +89,8 @@ def test_load_errors(tmp_path: Path, testing_level: HLDLevel):
 
 
 def test_get_ids_and_names():
-    assert get_id_from_name("rm_IN_01_brokenshallows.lvl") == 46
-    assert get_name_from_id(46) == "rm_IN_01_brokenshallows.lvl"
+    assert get_id_from_name("rm_in_01_brokenshallows.lvl") == 46
+    assert get_name_from_id(46) == "rm_in_01_brokenshallows.lvl"
 
 
 def test_ids_and_names_errors():
