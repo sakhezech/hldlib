@@ -8,14 +8,15 @@ class HLDDirection(str, Enum):
 
     def __str__(self):
         return self.value
-    NORTH = "north"
-    EAST = "east"
-    WEST = "west"
-    SOUTH = "south"
-    CENTRAL = "central"
-    INTRO = "intro"
-    ABYSS = "abyss"
-    CHALLENGES = "challenges"
-    EXTRA = "extra"
-    TESTLEVELS = "testlevels"
-    NONE = "none"
+
+    NORTH = 'north'
+    EAST = 'east'
+    WEST = 'west'
+    SOUTH = 'south'
+    CENTRAL = 'central'
+    INTRO = 'intro'
+    ABYSS = 'abyss'
+    CHALLENGES = 'challenges'
+    EXTRA = 'extra'
+    TESTLEVELS = 'testlevels'
+    NONE = 'none'

@@ -5,7 +5,9 @@ from pathlib import Path
 from typing import Any
 
 
-def trailing_join(iter: list[str], join_string: str, trail_if_len_gt: int = 0) -> str:
+def trailing_join(
+    iter: list[str], join_string: str, trail_if_len_gt: int = 0
+) -> str:
 
     return join_string.join(iter) + join_string * (len(iter) > trail_if_len_gt)
 
@@ -17,10 +19,10 @@ class sflist(list[str]):
 
     @classmethod
     def from_string(cls, string: str):
-        return cls(string.split("+")[:-1])
+        return cls(string.split('+')[:-1])
 
     def to_string(self) -> str:
-        return trailing_join(self, "+")
+        return trailing_join(self, '+')
 
 
 class sfdict(dict[str, list[str]]):
@@ -31,18 +33,25 @@ class sfdict(dict[str, list[str]]):
     @classmethod
     def from_string(cls, string: str):
         to_return = {}
-        pairs = string.split(">")
+        pairs = string.split('>')
         for pair in pairs[:-1]:
-            s_pair = pair.split("=")
+            s_pair = pair.split('=')
             key = s_pair[0]
-            value = s_pair[1].split("&")
+            value = s_pair[1].split('&')
             if len(value) > 1:
                 value = value[:-1]
             to_return[key] = value
         return cls(**to_return)
 
     def to_string(self) -> str:
-        return trailing_join([f"{key}={trailing_join(value, '&')}" for key, value in self.items() if value], ">")
+        return trailing_join(
+            [
+                f"{key}={trailing_join(value, '&')}"
+                for key, value in self.items()
+                if value
+            ],
+            '>',
+        )
 
 
 @dataclass
@@ -52,6 +61,7 @@ class HLDSaveFile:
 
     For field documentation please consult tihs: https://github.com/springsylvi/HLD-Save-Editor/blob/master/save_format.txt
     """
+
     badass: float
     mapMod: sfdict
     dateTime: float
@@ -117,10 +127,10 @@ class HLDSaveFile:
     def _auto_type(cls, value: Any, strtype) -> sfdict | sflist | float | str:
         strtype = strtype.__name__
         type_map = {
-            "sfdict": sfdict.from_string,
-            "sflist": sflist.from_string,
-            "float": float,
-            "str": str
+            'sfdict': sfdict.from_string,
+            'sflist': sflist.from_string,
+            'float': float,
+            'str': str,
         }
         return type_map[strtype](value)
 
@@ -129,7 +139,7 @@ class HLDSaveFile:
         """
         Loads a savefile from path.
         """
-        with open(path, "r") as in_:
+        with open(path, 'r') as in_:
             text = in_.read()
             return cls.from_string(text)
 
@@ -142,22 +152,23 @@ class HLDSaveFile:
             base64.standard_b64decode(string[80:])[:-1]
         )
 
-        if not "eq00" in save_dict:
-            save_dict["eq00"] = 0.
-        if not "eq01" in save_dict:
-            save_dict["eq01"] = 0.
-        save_dict["header"] = string[:80]
+        if 'eq00' not in save_dict:
+            save_dict['eq00'] = 0.0
+        if 'eq01' not in save_dict:
+            save_dict['eq01'] = 0.0
+        save_dict['header'] = string[:80]
 
         for field in fields(cls):
             save_dict[field.name] = cls._auto_type(
-                save_dict[field.name], field.type)
+                save_dict[field.name], field.type
+            )
         return cls(**save_dict)
 
     def dump(self, path: str | Path) -> None:
         """
         Dumps the savefile to path.
         """
-        with open(path, "w") as out:
+        with open(path, 'w') as out:
             out.write(self.to_string())
 
     def to_string(self) -> str:
@@ -165,30 +176,33 @@ class HLDSaveFile:
         Gets the encoded string from the savefile.
         """
         jsoned, header = self.to_json_string(indent=0)
-        encoded_body = header + \
-            str(base64.standard_b64encode(bytes(jsoned + "\x00", "utf8")), "utf-8")
+        encoded_body = header + str(
+            base64.standard_b64encode(bytes(jsoned + '\x00', 'utf8')), 'utf-8'
+        )
         return encoded_body
 
-    def to_json_string(self, indent: int = 0, convert_sf = True) -> tuple[str, str]:
+    def to_json_string(
+        self, indent: int = 0, convert_sf=True
+    ) -> tuple[str, str]:
         """
         An inbetween step for to_string(). Can be used for debugging.
         """
         save_dict = self.__dict__.copy()
-        header = save_dict.pop("header")
+        header = save_dict.pop('header')
         if convert_sf:
             for key, value in save_dict.items():
                 if isinstance(value, (sfdict, sflist)):
                     save_dict[key] = value.to_string()
-        if save_dict["eq00"] == 0.:
-            save_dict.pop("eq00")
-        if save_dict["eq01"] == 0.:
-            save_dict.pop("eq01")
+        if save_dict['eq00'] == 0.0:
+            save_dict.pop('eq00')
+        if save_dict['eq01'] == 0.0:
+            save_dict.pop('eq01')
         return (json.dumps(save_dict, indent=indent), header)
 
-    def debug_dump(self, path: str | Path, convert_sf = True) -> None:
+    def debug_dump(self, path: str | Path, convert_sf=True) -> None:
         """
         Dumps an unencoded savefile to path.
         """
-        with open(path, "w") as out:
+        with open(path, 'w') as out:
             jsoned, _ = self.to_json_string(4, convert_sf)
             out.write(jsoned)

@@ -1,8 +1,9 @@
 import re
+from enum import Enum
+from typing import Literal
+
 from hldlib.hlderror import HLDError
 from hldlib.hldtype import HLDType
-from typing import Literal
-from enum import Enum
 
 
 class CaseScriptType(Enum):
@@ -15,13 +16,20 @@ class CaseScriptType(Enum):
 
 
 class Dependencies:
-    def __init__(self, depends_on: list[int], caseScriptType: CaseScriptType, inverted: bool, actor: HLDType | Literal['-1','0','1','-999999'], delay: int):
+    def __init__(
+        self,
+        depends_on: list[int],
+        caseScriptType: CaseScriptType,
+        inverted: bool,
+        actor: HLDType | Literal['-1', '0', '1', '-999999'],
+        delay: int,
+    ):
         self.depends_on = depends_on
         self.caseScriptType = caseScriptType
         self.inverted = inverted
         self.actor = actor
         self.delay = delay
-    
+
     @classmethod
     def from_string(cls, string: str):
         before, after, *_ = string.split(',caseScript,') + ['']
@@ -35,19 +43,29 @@ class Dependencies:
             caseScriptType, inverted, actor, delay = after.split(',')  # type: ignore
             caseScriptType = CaseScriptType(int(caseScriptType))
             # THERE IS ONLY ONE LEVEL WHERE A STRING IS USED ISTEAD OF AN INT; TODO: MAKE THIS PRETTIER
-            inverted = not bool(int(inverted)) if inverted != 'false' else True # 'false' IS int(0) SO not bool(int(0)) == True
-            actor = HLDType(actor) if actor not in {'-1', '0', '1', '-999999'} else actor  # type: HLDType | Literal['-1','0','1','-999999']
+            inverted = (
+                not bool(int(inverted)) if inverted != 'false' else True
+            )   # 'false' IS int(0) SO not bool(int(0)) == True
+            actor = (
+                HLDType(actor)
+                if actor not in {'-1', '0', '1', '-999999'}
+                else actor
+            )  # type: HLDType | Literal['-1','0','1','-999999']
             delay = int(delay)
         return cls(
             depends_on=depends_on,
             caseScriptType=caseScriptType,
             inverted=inverted,
             actor=actor,
-            delay=delay
+            delay=delay,
         )
 
     def to_string(self) -> str:
-        left_part = f'{len(self.depends_on)},{",".join([str(uid) for uid in self.depends_on])}' if len(self.depends_on) else '-999999'
+        left_part = (
+            f'{len(self.depends_on)},{",".join([str(uid) for uid in self.depends_on])}'
+            if len(self.depends_on)
+            else '-999999'
+        )
         if self.caseScriptType == CaseScriptType.NO:
             return left_part
         else:
@@ -65,7 +83,16 @@ class HLDObj:
     A python representation of a HLD object.
     """
 
-    def __init__(self, type: HLDType, x: int, y: int, uid: int, attrs: dict, dependencies: Dependencies, layer: int = 0) -> None:
+    def __init__(
+        self,
+        type: HLDType,
+        x: int,
+        y: int,
+        uid: int,
+        attrs: dict,
+        dependencies: Dependencies,
+        layer: int = 0,
+    ) -> None:
         self.type = type
         self.x = x
         self.y = y
@@ -82,26 +109,42 @@ class HLDObj:
         obj,Spawner,593,536,352,6,-999999,++,-1=dirk,-2=-999999,-4=1,-5=0,-6=-1,-7=0,-8=0,
         """
         regex_match = re.match(
-            r"obj,(?P<type>.*?),(?P<uid>.*?),(?P<x>.*?),(?P<y>.*?),(?P<layer>.*?),(?P<dependencies>.*?),\+\+,(?P<attrs>.*)", line.strip().replace("//", ""))
+            r'obj,(?P<type>.*?),(?P<uid>.*?),(?P<x>.*?),(?P<y>.*?),(?P<layer>.*?),(?P<dependencies>.*?),\+\+,(?P<attrs>.*)',
+            line.strip().replace('//', ''),
+        )
         if not regex_match:
-            raise HLDError(f"This line is not an HLDObject: {line}")
-        type = regex_match.group("type")
-        uid = int(regex_match.group("uid"))
-        x = int(regex_match.group("x"))
-        y = int(regex_match.group("y"))
-        layer = int(regex_match.group("layer"))
-        dependencies = Dependencies.from_string(regex_match.group("dependencies"))
-        attrs = {pair.split("=")[0]: _int_float_str_convert(pair.split(
-            "=")[1]) for pair in regex_match.group("attrs").split(",") if "=" in pair}
-        return cls(type=HLDType(type), x=x, y=y, uid=uid, layer=layer, dependencies=dependencies, attrs=attrs)
+            raise HLDError(f'This line is not an HLDObject: {line}')
+        type = regex_match.group('type')
+        uid = int(regex_match.group('uid'))
+        x = int(regex_match.group('x'))
+        y = int(regex_match.group('y'))
+        layer = int(regex_match.group('layer'))
+        dependencies = Dependencies.from_string(
+            regex_match.group('dependencies')
+        )
+        attrs = {
+            pair.split('=')[0]: _int_float_str_convert(pair.split('=')[1])
+            for pair in regex_match.group('attrs').split(',')
+            if '=' in pair
+        }
+        return cls(
+            type=HLDType(type),
+            x=x,
+            y=y,
+            uid=uid,
+            layer=layer,
+            dependencies=dependencies,
+            attrs=attrs,
+        )
 
     def to_string(self) -> str:
         """
         Gets the object in a string form as they are formated in level files.
         """
-        attrs_to_str = ",".join(
-            [f"{key}={value}" for key, value in self.attrs.items()])
-        return f"\n\t //obj,{self.type},{self.uid},{self.x},{self.y},{self.layer},{self.dependencies.to_string()},++,{attrs_to_str},"
+        attrs_to_str = ','.join(
+            [f'{key}={value}' for key, value in self.attrs.items()]
+        )
+        return f'\n\t //obj,{self.type},{self.uid},{self.x},{self.y},{self.layer},{self.dependencies.to_string()},++,{attrs_to_str},'
 
     def __eq__(self, other) -> bool:
         if other.__class__ is not self.__class__:
