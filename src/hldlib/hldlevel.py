@@ -1,5 +1,6 @@
 import os
 import re
+from enum import Enum
 from pathlib import Path
 
 from hldlib.hlddirections import HLDDirection
@@ -123,194 +124,192 @@ class HLDLevel:
         return self.__dict__ == other.__dict__
 
 
-level_names_and_ids: set[tuple[str, int]] = {
-    ('rm_in_01_brokenshallows.lvl', 46),
-    ('rm_in_02_tutorial.lvl', 47),
-    ('rm_in_03_tut_combat.lvl', 48),
-    ('rm_in_horizoncliff.lvl', 49),
-    ('rm_in_halucinationdeath.lvl', 50),
-    ('rm_in_drifterfire.lvl', 51),
-    ('rm_in_blackwaitroom.lvl', 52),
-    ('rm_in_backertablet.lvl', 53),
-    ('rm_inl_secrets.lvl', 55),
-    ('rm_lin_gaps.lvl', 56),
-    ('rm_lin_combat.lvl', 57),
-    ('rm_c_drifterworkshop.lvl', 60),
-    ('rm_c_central.lvl', 61),
-    ('rm_c_dregs_n.lvl', 62),
-    ('rm_c_dregs_s.lvl', 63),
-    ('rm_c_dregs_e.lvl', 64),
-    ('rm_c_dregs_w.lvl', 65),
-    ('rm_c_ven_apoth.lvl', 66),
-    ('rm_c_ven_dash.lvl', 67),
-    ('rm_c_ven_gun.lvl', 68),
-    ('rm_c_ven_spec.lvl', 69),
-    ('rm_c_ven_sdojo.lvl', 70),
-    ('rm_carena.lvl', 71),
-    ('rm_pax_staging.lvl', 72),
-    ('rm_pax_arena1.lvl', 73),
-    ('rm_pax_arena2.lvl', 74),
-    ('rm_pax_arenae.lvl', 75),
-    ('rm_pax_arenaw.lvl', 76),
-    ('rm_pax_arenaall.lvl', 77),
-    ('rm_c_backertabletx.lvl', 78),
-    ('rm_televatorshaft.lvl', 79),
-    ('rm_nl_entrancepath.lvl', 84),
-    ('rm_nx_titanvista.lvl', 85),
-    ('rm_nx_northhall.lvl', 86),
-    ('rm_nl_cavevault.lvl', 87),
-    ('rm_nx_aftertitan.lvl', 88),
-    ('rm_nc_npchatchery.lvl', 89),
-    ('rm_nx_shrinepath.lvl', 90),
-    ('rm_nl_shrinepath2vault.lvl', 91),
-    ('rm_nx_cave01.lvl', 92),
-    ('rm_nx_shrinepath_2.lvl', 93),
-    ('rm_nx_mooncourtyard.lvl', 94),
-    ('rm_nx_towerlock.lvl', 95),
-    ('rm_nc_cliffcampfire.lvl', 96),
-    ('rm_nl_tobrokenshallows.lvl', 97),
-    ('rm_nx_stairs03.lvl', 98),
-    ('rm_nl_warproom.lvl', 100),
-    ('rm_nl_crushwarphall.lvl', 101),
-    ('rm_nl_crushtransition.lvl', 102),
-    ('rm_nl_crushbackloop.lvl', 103),
-    ('rm_nc_crusharena.lvl', 104),
-    ('rm_nl_dropspiralopen.lvl', 106),
-    ('rm_nl_droppits.lvl', 107),
-    ('rm_nl_dropblockcultfight.lvl', 108),
-    ('rm_nl_droparena.lvl', 109),
-    ('rm_nl_gapopening.lvl', 111),
-    ('rm_nx_gapwide.lvl', 112),
-    ('rm_nl_gaphallway.lvl', 113),
-    ('rm_nl_risingarena.lvl', 114),
-    ('rm_nx_cathedralentrance.lvl', 116),
-    ('rm_nx_cathedralhall.lvl', 117),
-    ('rm_nl_altarthrone.lvl', 118),
-    ('rm_nx_spiralstaircase.lvl', 119),
-    ('rm_nx_librariantablet.lvl', 120),
-    ('rm_nx_jerkpope.lvl', 121),
-    ('rm_nl_stairascent.lvl', 123),
-    ('rm_nl_crusharena.lvl', 124),
-    ('rm_sx_southopening.lvl', 128),
-    ('rm_ch_ctemplate.lvl', 129),
-    ('rm_sx_towersouth.lvl', 130),
-    ('rm_sx_npc.lvl', 131),
-    ('rm_s_gauntlet_elevator.lvl', 132),
-    ('rm_ch_bgunpillars.lvl', 133),
-    ('rm_ch_bfinal.lvl', 134),
-    ('rm_s_gauntletend.lvl', 135),
-    ('rm_ch_bdirkdemolition.lvl', 137),
-    ('rm_ch_tabigone.lvl', 139),
-    ('rm_ch_cgateblock.lvl', 140),
-    ('rm_ch_bmaddash.lvl', 141),
-    ('rm_ch_tlongestroad.lvl', 142),
-    ('rm_s_bulletbaker.lvl', 143),
-    ('rm_ch_cendhall.lvl', 144),
-    ('rm_ch_cturnhall.lvl', 146),
-    ('rm_ch_bfps.lvl', 147),
-    ('rm_ch_cbigggns.lvl', 148),
-    ('rm_ch_cspawnground.lvl', 149),
-    ('rm_s_countaculard.lvl', 150),
-    ('rm_ch_acorner.lvl', 152),
-    ('rm_ch_bdirkdeluge.lvl', 154),
-    ('rm_ch_bpods.lvl', 155),
-    ('rm_ch_bgundirkdash.lvl', 156),
-    ('rm_s_markscythe.lvl', 157),
-    ('rm_s_gauntletlinkup.lvl', 158),
-    ('rm_ch_apillarbird.lvl', 160),
-    ('rm_ch_cspiral.lvl', 161),
-    ('rm_ch_tbirdstandoff.lvl', 162),
-    ('rm_ch_bleaperfall.lvl', 163),
-    ('rm_s_bennyarrow.lvl', 164),
-    ('rm_s_gauntlettitanfinale.lvl', 165),
-    ('rm_ea_eastopening.lvl', 171),
-    ('rm_ec_swordbridge.lvl', 172),
-    ('rm_el_flameelevatorenter.lvl', 173),
-    ('rm_ea_watertunnellab.lvl', 174),
-    ('rm_ec_theplaza.lvl', 175),
-    ('rm_ec_npcdrugden.lvl', 176),
-    ('rm_ex_towereast.lvl', 177),
-    ('rm_eb_bogstreet.lvl', 178),
-    ('rm_ec_plazatoloop.lvl', 179),
-    ('rm_el_megahugelab.lvl', 181),
-    ('rm_eb_meltymasharena.lvl', 182),
-    ('rm_eb_flamepitlab.lvl', 183),
-    ('rm_el_flameelevatorexit.lvl', 184),
-    ('rm_eb_deadotterwalk.lvl', 185),
-    ('rm_ec_plazaaccesslab.lvl', 187),
-    ('rm_ec_dockslab.lvl', 188),
-    ('rm_ex_dockscampfire.lvl', 189),
-    ('rm_ev_docksbridge.lvl', 190),
-    ('rm_el_frogarena.lvl', 191),
-    ('rm_ec_bigboglab.lvl', 193),
-    ('rm_ea_bogtemplecamp.lvl', 194),
-    ('rm_ea_frogboss.lvl', 195),
-    ('rm_ec_templeishvault.lvl', 196),
-    ('rm_ec_eastloop.lvl', 198),
-    ('rm_ec_looplab.lvl', 199),
-    ('rm_eb_meltyleaperarena.lvl', 200),
-    ('rm_ec_plazatodocks.lvl', 202),
-    ('rm_ea_dockfightlab.lvl', 203),
-    ('rm_eb_underotterbigriflerumble.lvl', 204),
-    ('rm_eb_cleanershole.lvl', 205),
-    ('rm_wa_entrance.lvl', 209),
-    ('rm_wl_prisonhalvault.lvl', 210),
-    ('rm_wa_deadwood.lvl', 211),
-    ('rm_wa_deadwoods1.lvl', 212),
-    ('rm_wa_grotto_buffintro.lvl', 213),
-    ('rm_wc_windingwood.lvl', 214),
-    ('rm_wc_grottonpc.lvl', 215),
-    ('rm_wl_npctreehouse.lvl', 216),
-    ('rm_wc_minilab.lvl', 217),
-    ('rm_wt_thewood.lvl', 218),
-    ('rm_wa_entswitch.lvl', 219),
-    ('rm_wc_meadowoodcorner.lvl', 220),
-    ('rm_wb_treetreachery.lvl', 222),
-    ('rm_wl_westdriftervault.lvl', 223),
-    ('rm_wt_slowlab.lvl', 225),
-    ('rm_wc_cliffsidecellsredux.lvl', 226),
-    ('rm_wc_prisonhal.lvl', 227),
-    ('rm_wc_thinforest.lvl', 229),
-    ('rm_wc_simplepath.lvl', 230),
-    ('rm_wc_crystallake.lvl', 231),
-    ('rm_wc_crystallakevault.lvl', 232),
-    ('rm_wc_prisonhallend.lvl', 233),
-    ('rm_wc_thinforestlow.lvl', 234),
-    ('rm_wc_thinforestlowsecret.lvl', 235),
-    ('rm_wa_titanfalls.lvl', 236),
-    ('rm_wa_vale.lvl', 238),
-    ('rm_wc_bigmeadow.lvl', 239),
-    ('rm_wc_bigmeadowvault.lvl', 240),
-    ('rm_wc_meadowcavecrossing.lvl', 241),
-    ('rm_wb_bigbattle.lvl', 242),
-    ('rm_wb_tanukitrouble.lvl', 243),
-    ('rm_wc_ruinclearing.lvl', 244),
-    ('rm_wx_boss.lvl', 245),
-    ('rm_wa_towerenter.lvl', 246),
-    ('rm_wa_multientrancelab.lvl', 247),
-    ('rm_wa_crsytaldescent.lvl', 248),
-    ('rm_wa_grottox.lvl', 250),
-    ('rm_wb_crystalqueen.lvl', 251),
-    ('rm_wt_protogrid.lvl', 252),
-    ('rm_wv_puzzlepalacenew.lvl', 253),
-    ('rm_a_elevatorshaftupper.lvl', 256),
-    ('rm_a_elevatorshaft.lvl', 257),
-    ('rm_a_predownward.lvl', 258),
-    ('rm_a_downward.lvl', 259),
-    ('rm_a_downwarddead.lvl', 260),
-    ('rm_a_downwarddeadrevisit.lvl', 261),
-    ('rm_a_emberroom.lvl', 262),
-    ('rm_bossrush_hub.lvl', 265),
-    ('rm_bossrush_frogboss.lvl', 266),
-    ('rm_bossrush_jerkpope.lvl', 267),
-    ('rm_bossrush_general.lvl', 268),
-    ('rm_bossrush_bulletbaker.lvl', 269),
-    ('rm_bossrush_countaculard.lvl', 270),
-    ('rm_bossrush_markscythe.lvl', 271),
-    ('rm_bossrush_bennyarrow.lvl', 272),
-    ('rm_bossrush_ember.lvl', 273),
-    ('rm_c_drifterworkshop.lvl', 276),
-}
+class HLDLevelNames(Enum):
+    IN_01_BROKENSHALLOWS = 46
+    IN_02_TUTORIAL = 47
+    IN_03_TUT_COMBAT = 48
+    IN_HORIZONCLIFF = 49
+    IN_HALUCINATIONDEATH = 50
+    IN_DRIFTERFIRE = 51
+    IN_BLACKWAITROOM = 52
+    IN_BACKERTABLET = 53
+    INL_SECRETS = 55
+    LIN_GAPS = 56
+    LIN_COMBAT = 57
+    C_DRIFTERWORKSHOP = 60
+    C_CENTRAL = 61
+    C_DREGS_N = 62
+    C_DREGS_S = 63
+    C_DREGS_E = 64
+    C_DREGS_W = 65
+    C_VEN_APOTH = 66
+    C_VEN_DASH = 67
+    C_VEN_GUN = 68
+    C_VEN_SPEC = 69
+    C_VEN_SDOJO = 70
+    CARENA = 71
+    PAX_STAGING = 72
+    PAX_ARENA1 = 73
+    PAX_ARENA2 = 74
+    PAX_ARENAE = 75
+    PAX_ARENAW = 76
+    PAX_ARENAALL = 77
+    C_BACKERTABLETX = 78
+    TELEVATORSHAFT = 79
+    NL_ENTRANCEPATH = 84
+    NX_TITANVISTA = 85
+    NX_NORTHHALL = 86
+    NL_CAVEVAULT = 87
+    NX_AFTERTITAN = 88
+    NC_NPCHATCHERY = 89
+    NX_SHRINEPATH = 90
+    NL_SHRINEPATH2VAULT = 91
+    NX_CAVE01 = 92
+    NX_SHRINEPATH_2 = 93
+    NX_MOONCOURTYARD = 94
+    NX_TOWERLOCK = 95
+    NC_CLIFFCAMPFIRE = 96
+    NL_TOBROKENSHALLOWS = 97
+    NX_STAIRS03 = 98
+    NL_WARPROOM = 100
+    NL_CRUSHWARPHALL = 101
+    NL_CRUSHTRANSITION = 102
+    NL_CRUSHBACKLOOP = 103
+    NC_CRUSHARENA = 104
+    NL_DROPSPIRALOPEN = 106
+    NL_DROPPITS = 107
+    NL_DROPBLOCKCULTFIGHT = 108
+    NL_DROPARENA = 109
+    NL_GAPOPENING = 111
+    NX_GAPWIDE = 112
+    NL_GAPHALLWAY = 113
+    NL_RISINGARENA = 114
+    NX_CATHEDRALENTRANCE = 116
+    NX_CATHEDRALHALL = 117
+    NL_ALTARTHRONE = 118
+    NX_SPIRALSTAIRCASE = 119
+    NX_LIBRARIANTABLET = 120
+    NX_JERKPOPE = 121
+    NL_STAIRASCENT = 123
+    NL_CRUSHARENA = 124
+    SX_SOUTHOPENING = 128
+    CH_CTEMPLATE = 129
+    SX_TOWERSOUTH = 130
+    SX_NPC = 131
+    S_GAUNTLET_ELEVATOR = 132
+    CH_BGUNPILLARS = 133
+    CH_BFINAL = 134
+    S_GAUNTLETEND = 135
+    CH_BDIRKDEMOLITION = 137
+    CH_TABIGONE = 139
+    CH_CGATEBLOCK = 140
+    CH_BMADDASH = 141
+    CH_TLONGESTROAD = 142
+    S_BULLETBAKER = 143
+    CH_CENDHALL = 144
+    CH_CTURNHALL = 146
+    CH_BFPS = 147
+    CH_CBIGGGNS = 148
+    CH_CSPAWNGROUND = 149
+    S_COUNTACULARD = 150
+    CH_ACORNER = 152
+    CH_BDIRKDELUGE = 154
+    CH_BPODS = 155
+    CH_BGUNDIRKDASH = 156
+    S_MARKSCYTHE = 157
+    S_GAUNTLETLINKUP = 158
+    CH_APILLARBIRD = 160
+    CH_CSPIRAL = 161
+    CH_TBIRDSTANDOFF = 162
+    CH_BLEAPERFALL = 163
+    S_BENNYARROW = 164
+    S_GAUNTLETTITANFINALE = 165
+    EA_EASTOPENING = 171
+    EC_SWORDBRIDGE = 172
+    EL_FLAMEELEVATORENTER = 173
+    EA_WATERTUNNELLAB = 174
+    EC_THEPLAZA = 175
+    EC_NPCDRUGDEN = 176
+    EX_TOWEREAST = 177
+    EB_BOGSTREET = 178
+    EC_PLAZATOLOOP = 179
+    EL_MEGAHUGELAB = 181
+    EB_MELTYMASHARENA = 182
+    EB_FLAMEPITLAB = 183
+    EL_FLAMEELEVATOREXIT = 184
+    EB_DEADOTTERWALK = 185
+    EC_PLAZAACCESSLAB = 187
+    EC_DOCKSLAB = 188
+    EX_DOCKSCAMPFIRE = 189
+    EV_DOCKSBRIDGE = 190
+    EL_FROGARENA = 191
+    EC_BIGBOGLAB = 193
+    EA_BOGTEMPLECAMP = 194
+    EA_FROGBOSS = 195
+    EC_TEMPLEISHVAULT = 196
+    EC_EASTLOOP = 198
+    EC_LOOPLAB = 199
+    EB_MELTYLEAPERARENA = 200
+    EC_PLAZATODOCKS = 202
+    EA_DOCKFIGHTLAB = 203
+    EB_UNDEROTTERBIGRIFLERUMBLE = 204
+    EB_CLEANERSHOLE = 205
+    WA_ENTRANCE = 209
+    WL_PRISONHALVAULT = 210
+    WA_DEADWOOD = 211
+    WA_DEADWOODS1 = 212
+    WA_GROTTO_BUFFINTRO = 213
+    WC_WINDINGWOOD = 214
+    WC_GROTTONPC = 215
+    WL_NPCTREEHOUSE = 216
+    WC_MINILAB = 217
+    WT_THEWOOD = 218
+    WA_ENTSWITCH = 219
+    WC_MEADOWOODCORNER = 220
+    WB_TREETREACHERY = 222
+    WL_WESTDRIFTERVAULT = 223
+    WT_SLOWLAB = 225
+    WC_CLIFFSIDECELLSREDUX = 226
+    WC_PRISONHAL = 227
+    WC_THINFOREST = 229
+    WC_SIMPLEPATH = 230
+    WC_CRYSTALLAKE = 231
+    WC_CRYSTALLAKEVAULT = 232
+    WC_PRISONHALLEND = 233
+    WC_THINFORESTLOW = 234
+    WC_THINFORESTLOWSECRET = 235
+    WA_TITANFALLS = 236
+    WA_VALE = 238
+    WC_BIGMEADOW = 239
+    WC_BIGMEADOWVAULT = 240
+    WC_MEADOWCAVECROSSING = 241
+    WB_BIGBATTLE = 242
+    WB_TANUKITROUBLE = 243
+    WC_RUINCLEARING = 244
+    WX_BOSS = 245
+    WA_TOWERENTER = 246
+    WA_MULTIENTRANCELAB = 247
+    WA_CRSYTALDESCENT = 248
+    WA_GROTTOX = 250
+    WB_CRYSTALQUEEN = 251
+    WT_PROTOGRID = 252
+    WV_PUZZLEPALACENEW = 253
+    A_ELEVATORSHAFTUPPER = 256
+    A_ELEVATORSHAFT = 257
+    A_PREDOWNWARD = 258
+    A_DOWNWARD = 259
+    A_DOWNWARDDEAD = 260
+    A_DOWNWARDDEADREVISIT = 261
+    A_EMBERROOM = 262
+    BOSSRUSH_HUB = 265
+    BOSSRUSH_FROGBOSS = 266
+    BOSSRUSH_JERKPOPE = 267
+    BOSSRUSH_GENERAL = 268
+    BOSSRUSH_BULLETBAKER = 269
+    BOSSRUSH_COUNTACULARD = 270
+    BOSSRUSH_MARKSCYTHE = 271
+    BOSSRUSH_BENNYARROW = 272
+    BOSSRUSH_EMBER = 273
 
 
 def get_id_from_name(name: str) -> int:
@@ -318,18 +317,20 @@ def get_id_from_name(name: str) -> int:
     A way to convert level name to its internal ID.
     Not case sensitive.
     """
-    for namee, idd in level_names_and_ids:
-        if namee == name.lower():
-            return idd
-    raise HLDError(f'No such level named {name}.')
+    try:
+        return HLDLevelNames[
+            name.removeprefix('rm_').removesuffix('.lvl').upper()
+        ].value
+    except KeyError:
+        raise HLDError(f'No such level named {name}.')
 
 
 def get_name_from_id(id_: int) -> str:
-    """
+    """
     A way to convert internal level ID to its name.
     Returns in lowercase.
     """
-    for namee, idd in level_names_and_ids:
-        if idd == id_:
-            return namee
-    raise HLDError(f'No such level with id {id_}.')
+    try:
+        return f'rm_{HLDLevelNames(id_).name.lower()}.lvl'
+    except ValueError:
+        raise HLDError(f'No such level with id {id_}.')
