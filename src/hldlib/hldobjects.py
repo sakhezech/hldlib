@@ -19,13 +19,13 @@ class Dependencies:
     def __init__(
         self,
         depends_on: list[int],
-        caseScriptType: CaseScriptType,
+        casescript: CaseScriptType,
         inverted: bool,
         actor: HLDType | Literal['-1', '0', '1', '-999999'],
         delay: int,
     ):
         self.depends_on = depends_on
-        self.caseScriptType = caseScriptType
+        self.casescript = casescript
         self.inverted = inverted
         self.actor = actor
         self.delay = delay
@@ -54,7 +54,7 @@ class Dependencies:
             delay = int(delay)
         return cls(
             depends_on=depends_on,
-            caseScriptType=caseScriptType,
+            casescript=caseScriptType,
             inverted=inverted,
             actor=actor,
             delay=delay,
@@ -66,10 +66,10 @@ class Dependencies:
             if len(self.depends_on)
             else '-999999'
         )
-        if self.caseScriptType == CaseScriptType.NO:
+        if self.casescript == CaseScriptType.NO:
             return left_part
         else:
-            right_part = f'{self.caseScriptType.value},{int(not self.inverted)},{self.actor},{self.delay}'
+            right_part = f'{self.casescript.value},{int(not self.inverted)},{self.actor},{self.delay}'
             return f'{left_part},caseScript,{right_part}'
 
     def __eq__(self, other) -> bool:
