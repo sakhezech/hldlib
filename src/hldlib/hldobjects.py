@@ -89,7 +89,7 @@ class HLDObj:
         x: int,
         y: int,
         uid: int,
-        attrs: dict,
+        attrs: dict[str, int | float | str],
         dependencies: Dependencies,
         layer: int = 0,
     ) -> None:
