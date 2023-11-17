@@ -9,7 +9,9 @@ from hldlib.aliases import StrPath
 # lists and dicts in savefile data always have a training separator
 # which we have to add if len(...) > 0
 def trail_join(separator: str, input: Iterable[str]) -> str:
-    return separator.join(input) + separator * bool(input)
+    if not input:
+        return ''
+    return separator.join(input) + separator
 
 
 # lists and dicts in savefile data always have a training separator
