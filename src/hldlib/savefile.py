@@ -14,15 +14,15 @@ def trail_join(separator: str, input: Iterable[str]) -> str:
 
 # lists and dicts in savefile data always have a training separator
 # which we have to remove before splitting
-def untrail_split(separator: str, input: str) -> list[str]:
+def strip_split(separator: str, input: str) -> list[str]:
     # if we dont want to return [''] on empty string
     if not input:
         return []
     return input.removesuffix(separator).split(separator)
 
 
-def string_to_header_body(string: str) -> tuple[str, dict]:
-    # the first 80 characters are machine specific header
+def decode_data(string: str) -> tuple[str, dict]:
+    # the first 80 characters are a machine specific header
     header, body_str = string[:80], string[80:]
     # we have to remove last character after decoding
     decoded = standard_b64decode(body_str)[:-1]
@@ -30,35 +30,35 @@ def string_to_header_body(string: str) -> tuple[str, dict]:
     return header, body
 
 
-def header_body_to_string(header: str, body: dict) -> str:
+def encode_data(header: str, body: dict) -> str:
     body_str = json.dumps(body, indent=0)
     # we are adding back the last character we removed while decoding
     encoded = str(standard_b64encode(bytes(body_str + '\x00', 'utf8')), 'utf8')
     return header + encoded
 
 
-def data_to_list(string: str) -> list[str]:
-    return untrail_split('+', string)
+def load_sflist(string: str) -> list[str]:
+    return strip_split('+', string)
 
 
-def list_to_data(list_: list) -> str:
+def dump_sflist(list_: list) -> str:
     return trail_join('+', list_)
 
 
-def data_to_dict(string: str) -> dict[str, list[str]]:
+def load_sfdict(string: str) -> dict[str, list[str]]:
     # keyOne=valOne&valTwo&>keyTwo=valThree&valFour&>
     # ['keyOne=valOne&valTwo&', 'keyTwo=valThree&valFour&']
     # [['keyOne', 'valOne&valTwo&'], ['keyTwo', 'valThree&valFour&']]
     # {'keyOne': ['valOne', 'valTwo'], 'keyTwo': ['valThree', 'valFour']}
     return {
-        k: untrail_split('&', v)
-        for k, v in [eq.split('=') for eq in untrail_split('>', string)]
+        k: strip_split('&', v)
+        for k, v in [eq.split('=') for eq in strip_split('>', string)]
     }
 
 
-def dict_to_data(dict_: dict) -> str:
+def dump_sfdict(dict_: dict) -> str:
     return trail_join(
-        '>', [k + '=' + trail_join('&', v) for k, v in dict_.items()]
+        '>', [f'{k}={trail_join("&", v)}' for k, v in dict_.items()]
     )
 
 
@@ -127,7 +127,7 @@ class Savefile:
 
     @classmethod
     def loads(cls, string: str):
-        header, body = string_to_header_body(string)
+        header, body = decode_data(string)
 
         # if a weapon is not equipped there is no 'eq0X' in savefile data
         # which we need so we represent an empty slot with a meaningless 0.0
@@ -140,9 +140,9 @@ class Savefile:
 
         for field in fields(cls):
             if field.type == list[str]:
-                body[field.name] = data_to_list(body[field.name])
+                body[field.name] = load_sflist(body[field.name])
             if field.type == dict[str, list[str]]:
-                body[field.name] = data_to_dict(body[field.name])
+                body[field.name] = load_sfdict(body[field.name])
 
         return cls(**body)
 
@@ -164,11 +164,11 @@ class Savefile:
 
         for k, v in body.items():
             if isinstance(v, list):
-                body[k] = list_to_data(v)
+                body[k] = dump_sflist(v)
             if isinstance(v, dict):
-                body[k] = dict_to_data(v)
+                body[k] = dump_sfdict(v)
 
-        return header_body_to_string(header, body)
+        return encode_data(header, body)
 
     def dump(self, path: StrPath):
         with open(path, 'w') as f:
