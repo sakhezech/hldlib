@@ -139,7 +139,6 @@ class Savefile:
         body['header'] = header
 
         for field in fields(cls):
-            print(field.type)
             if field.type == list[str]:
                 body[field.name] = data_to_list(body[field.name])
             if field.type == dict[str, list[str]]:
