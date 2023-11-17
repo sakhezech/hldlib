@@ -8,7 +8,7 @@ from hldlib.aliases import StrPath
 
 # lists and dicts in savefile data always have a training separator
 # which we have to add if len(...) > 0
-def trail_join(separator: str, input: Iterable[str]):
+def trail_join(separator: str, input: Iterable[str]) -> str:
     return separator.join(input) + separator * bool(input)
 
 
@@ -46,10 +46,13 @@ def list_to_data(list_: list) -> str:
 
 
 def data_to_dict(string: str) -> dict[str, list[str]]:
-    keqvs = untrail_split('>', string)
+    # keyOne=valOne&valTwo&>keyTwo=valThree&valFour&>
+    # ['keyOne=valOne&valTwo&', 'keyTwo=valThree&valFour&']
+    # [['keyOne', 'valOne&valTwo&'], ['keyTwo', 'valThree&valFour&']]
+    # {'keyOne': ['valOne', 'valTwo'], 'keyTwo': ['valThree', 'valFour']}
     return {
         k: untrail_split('&', v)
-        for k, v in [keqv.split('=') for keqv in keqvs]
+        for k, v in [eq.split('=') for eq in untrail_split('>', string)]
     }
 
 
