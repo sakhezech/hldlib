@@ -1,7 +1,11 @@
-from hldlib.savefile import Savefile, decode_data, encode_data
+from hldlib.savefile import (
+    Savefile,
+    decode_savefile_data,
+    encode_savefile_data,
+)
 
 __all__ = [
     'Savefile',
-    'decode_data',
-    'encode_data',
+    'decode_savefile_data',
+    'encode_savefile_data',
 ]

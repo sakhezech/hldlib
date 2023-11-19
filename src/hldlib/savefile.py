@@ -6,7 +6,7 @@ from typing import Iterable
 from hldlib.aliases import StrPath
 
 
-# lists and dicts in savefile data always have a training separator
+# lists and dicts in savefile data always have a trailing separator
 # which we have to add if len(...) > 0
 def trail_join(separator: str, input: Iterable[str]) -> str:
     if not input:
@@ -23,7 +23,7 @@ def strip_split(separator: str, input: str) -> list[str]:
     return input.removesuffix(separator).split(separator)
 
 
-def decode_data(string: str) -> tuple[str, dict]:
+def decode_savefile_data(string: str) -> tuple[str, dict]:
     # the first 80 characters are a machine specific header
     header, body_str = string[:80], string[80:]
     # we have to remove last character after decoding
@@ -32,7 +32,7 @@ def decode_data(string: str) -> tuple[str, dict]:
     return header, body
 
 
-def encode_data(header: str, body: dict) -> str:
+def encode_savefile_data(header: str, body: dict) -> str:
     body_str = json.dumps(body, indent=0)
     # we are adding back the last character we removed while decoding
     encoded = str(standard_b64encode(bytes(body_str + '\x00', 'utf8')), 'utf8')
@@ -129,7 +129,7 @@ class Savefile:
 
     @classmethod
     def loads(cls, string: str):
-        header, body = decode_data(string)
+        header, body = decode_savefile_data(string)
 
         # if a weapon is not equipped there is no 'eq0X' in savefile data
         # which we need so we represent an empty slot with a meaningless 0.0
@@ -170,7 +170,7 @@ class Savefile:
             if isinstance(v, dict):
                 body[k] = dump_sfdict(v)
 
-        return encode_data(header, body)
+        return encode_savefile_data(header, body)
 
     def dump(self, path: StrPath):
         with open(path, 'w') as f:
