@@ -1,9 +1,7 @@
 import json
 from base64 import standard_b64decode, standard_b64encode
 from dataclasses import dataclass, fields
-from typing import Iterable
-
-from hldlib.aliases import StrPath
+from typing import Iterable, TextIO
 
 
 # lists and dicts in savefile data always have a trailing separator
@@ -149,9 +147,8 @@ class Savefile:
         return cls(**body)
 
     @classmethod
-    def load(cls, path: StrPath):
-        with open(path, 'r') as f:
-            return cls.loads(f.read())
+    def load(cls, f: TextIO):
+        return cls.loads(f.read())
 
     def dumps(self) -> str:
         body = self.__dict__.copy()
@@ -172,6 +169,5 @@ class Savefile:
 
         return encode_savefile_data(header, body)
 
-    def dump(self, path: StrPath):
-        with open(path, 'w') as f:
-            f.write(self.dumps())
+    def dump(self, f: TextIO):
+        f.write(self.dumps())
