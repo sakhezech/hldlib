@@ -2,6 +2,10 @@ from enum import Enum
 
 
 class ObjType(str, Enum):
+    """
+    All HLD object types extracted from levels and `data.win`.
+    """
+
     def __str__(self):
         return self.value
 
