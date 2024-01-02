@@ -1,11 +1,7 @@
-from hld.savefile import (
-    Savefile,
-    decode_savefile_data,
-    encode_savefile_data,
-)
+from hld.objtypes import ObjType
+from hld.savefile import Savefile
 
 __all__ = [
+    'ObjType',
     'Savefile',
-    'decode_savefile_data',
-    'encode_savefile_data',
 ]
