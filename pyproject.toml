@@ -15,6 +15,9 @@ quote-style = 'single'
 [tool.ruff.lint]
 extend-select = ['I', 'E501']
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/hld"]
+
 [build-system]
 requires = ['hatchling']
 build-backend = 'hatchling.build'
