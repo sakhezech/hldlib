@@ -3,7 +3,8 @@ name = 'hldlib'
 readme = 'README.md'
 description = 'A Python package for working with Hyper Light Drifter files'
 license = { file = "LICENSE" }
-version = '1.0.0'
+dependencies = []
+dynamic = ['version']
 
 [project.urls]
 Homepage = 'https://github.com/sakhezech/hldlib'
@@ -14,6 +15,9 @@ line-length = 79
 quote-style = 'single'
 [tool.ruff.lint]
 extend-select = ['I', 'E501']
+
+[tool.hatch.version]
+path = 'src/hld/__version__.py'
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/hld"]
